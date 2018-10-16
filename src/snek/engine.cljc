@@ -13,7 +13,7 @@
                (c/movement-event? command) (swap! state-atom c/handle-movement command)
                :else (swap! state-atom c/handle-tick)))
            (recur)))
-x
+
 (defn start
   [state-atom event-channel]
   (swap! state-atom core/initialize-game)
