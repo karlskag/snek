@@ -7,11 +7,13 @@
 
 (defn game-loop
   [state-atom channel]
-  (go (let [[command ch] (alts! [channel (timeout default-tick-speed)])] ;take command and update state or tick
-        (cond
-          (c/movement-event? command) (swap! state-atom (c/handle-movement command))
-          :else (swap! state-atom (c/handle-tick))))))
-
+  (go-loop []
+           (let [[command ch] (alts! [channel (timeout default-tick-speed)])] ;take command and update state or tick
+             (cond
+               (c/movement-event? command) (swap! state-atom c/handle-movement command)
+               :else (swap! state-atom c/handle-tick)))
+           (recur)))
+x
 (defn start
   [state-atom event-channel]
   (swap! state-atom core/initialize-game)
