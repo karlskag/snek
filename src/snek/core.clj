@@ -19,9 +19,9 @@
   ;; Head moves first, then body makes same movement delayed one tick.
   ;; Each tick adds a movement co-ord to list on state.
   ;; Each part of snake makes corresponding index move
-  (s/update-coordinates state (map-indexed (fn [coordinate index]
+  (s/update-coordinates state (vec (map-indexed (fn [coordinate index]
                                              (map + coordinate (nth (s/get-movements state) index)))
-                                           (s/get-coordinates state)))
+                                           (s/get-coordinates state))))
 
   (defn handle-movement
     [state command]
