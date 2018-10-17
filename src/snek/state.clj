@@ -18,3 +18,14 @@
   [state movement]
   (update-in state [:player :movements] conj movement))
 
+(defn get-coordinates
+  [state]
+  (get-in state [:player :coordinates]))
+
+(defn update-coordinates
+  {:test (fn []
+           (is (= (get-coordinates (update-coordinates (create-default-state) [[0 1] [1 1]]))
+                  [[0 1] [1 1]])))}
+  [state coordinates]
+  (assoc-in state [:player :coordinates] coordinates))
+
