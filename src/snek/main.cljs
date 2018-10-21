@@ -1,33 +1,56 @@
 (ns snek.main
-    (:require [rum.core :as rum]
-              [snek.engine :as engine]))
+  (:require [rum.core :as rum]
+            [snek.engine :as engine]
+            [cljs.core.async :refer [chan put!]]))
 
 (enable-console-print!)
 
-(println "This text is printed from src/snek/core.cljs. Go ahead and edit it and see reloading in action.")
+; CANVAS BEGIN
 
-;; define your app data so that it doesn't get over-written on reload
+(def default-sizes {:height 10 :width 10})
 
-(defonce app-state (atom {:text "Hello world!"}))
+(defn get-canvas [] (. js/document (getElementById "playArea")))
 
+(defn get-context [canvas] (.getContext canvas "2d"))
 
-(rum/defc hello-world []
-  [:div
-   [:h1 (:text @app-state)]
-   [:h3 "Edit this and watch it change!"]])
+(defn set-canvas-size
+  [canvas width height]
+  (set! (.-width canvas) width)
+  (set! (.-height canvas) height))
 
-(rum/mount (hello-world)
+(defn draw-rect
+  [ctx [x y]]
+  (.fillRect ctx x y (:height default-sizes) (:width default-sizes)))
+
+; CANVAS END
+
+(defn parse-event
+  [event]
+  (get {"ArrowUp"    :up
+        "ArrowDown"  :down
+        "ArrowLeft"  :left
+        "ArrowRight" :right}
+       (.-key event)))
+
+(defn init-canvas
+  []
+  (let [canvas (get-canvas)
+        ctx (get-context canvas)]
+    (set-canvas-size canvas 500 500)
+    (draw-rect ctx [50 50])))
+
+(defn key-handler
+  [chan event]
+  (put! chan (parse-event event)))
+
+(defonce app-state (atom nil))
+(def event-chan (chan))
+(js/window.addEventListener "keydown" (partial key-handler event-chan))
+(init-canvas)
+(engine/start app-state event-chan)
+
+(rum/defc Root < rum/reactive []
+  [:div "Player: " (get-in (rum/react app-state) [:player :coordinates])])
+
+(rum/mount (Root)
            (. js/document (getElementById "app")))
-
-(defn on-js-reload []
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
-
-;; Register event-handlers that parse and push movement key-presses to channel
-;; Engine listens to channel and reacts
-;; Engine will delegate event to core and swap atom
-;; Render each 30 ms or so based on current state
-
-;; Possible that render will not be based on ms but a callback to state swap?

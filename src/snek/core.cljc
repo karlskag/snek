@@ -7,6 +7,10 @@
   [evt]
   (contains? #{:up :down :left :right} evt))
 
+(defn initialize-game
+  []
+  (s/create-default-state))
+
 (defn move
   {:test (fn []
            (is (= (s/get-coordinates (move (s/create-default-state)))
