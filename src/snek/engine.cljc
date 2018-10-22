@@ -3,7 +3,7 @@
     [snek.core :as c]
     [cljs.core.async :as async]))
 
-(def default-tick-speed 100)
+(def default-tick-speed 50)
 
 (defn handle-ui-events
   [state-atom channel]

@@ -6,7 +6,7 @@
   {:player {:direction   :right
             :coordinates [[8 3] [7 3] [6 3]]
             :movements   [[1 0] [1 0] [1 0]]}
-   :food   [[20 6] [30 40]]})
+   :food   #{[20 6] [30 40]}})
 
 (defn get-movements
   [state]
@@ -41,4 +41,8 @@
 (defn get-food
   [state]
   (:food state))
+
+(defn add-coordinate
+  [state coordinate]
+  (update-in state [:player :coordinates] conj coordinate))
 
