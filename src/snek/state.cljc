@@ -30,6 +30,10 @@
   [state coordinates]
   (assoc-in state [:player :coordinates] coordinates))
 
+(defn get-direction
+  [state]
+  (get-in state [:player :direction]))
+
 (defn update-direction
   [state direction]
   (assoc-in state [:player :direction] direction))

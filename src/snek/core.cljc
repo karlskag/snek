@@ -34,17 +34,18 @@
 
 (defn handle-movement
   {:test (fn []
-           (is (= (handle-movement (s/create-default-state) :down)
-                  {:player {:coordinates [[8 2] [8 3] [7 3]]
+           (is (= (handle-movement (s/update-direction (s/create-default-state) :down))
+                  {:player {:direction :down
+                            :coordinates [[8 2] [8 3] [7 3]]
                             :movements   [[1 0] [1 0] [1 0] [0 -1]]}
                    :food   [[20 6]]})))}
-  [state command]
-  (-> (case command
-        :up (s/update-movements state [0 -1])
-        :down (s/update-movements state [0 1])
-        :left (s/update-movements state [-1 0])
-        :right (s/update-movements state [1 0]))
-      (move)))
+  [state]
+  (case (s/get-direction state)
+    :up (s/update-movements state [0 -1])
+    :down (s/update-movements state [0 1])
+    :left (s/update-movements state [-1 0])
+    :right (s/update-movements state [1 0]))
+  )
 
 (defn handle-tick
   {:test (fn []
@@ -54,6 +55,5 @@
                    :food   [[20 6]]})))}
   [state]
   (-> state
-      ()
-      (s/update-movements (last (s/get-movements state)))
+      (handle-movement)
       (move)))

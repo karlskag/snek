@@ -20,9 +20,8 @@
   [[x y]]
   (.fillRect ctx x y (:height default-sizes) (:width default-sizes)))
 
-(defn init-canvas
-  []
-  (set-canvas-size canvas 500 500))
+(defn clear-canvas [] (.clearRect ctx 0 0 500 500))
+(defn init-canvas [] (set-canvas-size canvas 500 500))
 
 ; CANVAS END
 
@@ -49,7 +48,7 @@
 
 ;; Use requestAnimationFrame as callback?
 (add-watch app-state :ticker (fn [_ _ _ state]
-                               ;; clear rect first
-                               (draw-rect (first (get-in state [:player :coordinates])))))
+                               (clear-canvas)
+                               (apply draw-rect (get-in state [:player :coordinates]))))
 (rum/mount (Root)
            (. js/document (getElementById "app")))
