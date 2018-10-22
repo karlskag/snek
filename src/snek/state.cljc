@@ -3,7 +3,8 @@
 
 (defn create-default-state
   []
-  {:player {:coordinates [[8 3] [7 3] [6 3]]
+  {:player {:direction   :right
+            :coordinates [[8 3] [7 3] [6 3]]
             :movements   [[1 0] [1 0] [1 0]]}
    :food   [[20 6]]})
 
@@ -28,4 +29,8 @@
                   [[0 1] [1 1]])))}
   [state coordinates]
   (assoc-in state [:player :coordinates] coordinates))
+
+(defn update-direction
+  [state direction]
+  (assoc-in state [:player :direction] direction))
 

@@ -8,10 +8,8 @@
 ; CANVAS BEGIN
 
 (def default-sizes {:height 10 :width 10})
-
-(defn get-canvas [] (. js/document (getElementById "playArea")))
-
-(defn get-context [canvas] (.getContext canvas "2d"))
+(def canvas (. js/document (getElementById "playArea")))
+(def ctx (.getContext canvas "2d"))
 
 (defn set-canvas-size
   [canvas width height]
@@ -19,8 +17,12 @@
   (set! (.-height canvas) height))
 
 (defn draw-rect
-  [ctx [x y]]
+  [[x y]]
   (.fillRect ctx x y (:height default-sizes) (:width default-sizes)))
+
+(defn init-canvas
+  []
+  (set-canvas-size canvas 500 500))
 
 ; CANVAS END
 
@@ -31,13 +33,6 @@
         "ArrowLeft"  :left
         "ArrowRight" :right}
        (.-key event)))
-
-(defn init-canvas
-  []
-  (let [canvas (get-canvas)
-        ctx (get-context canvas)]
-    (set-canvas-size canvas 500 500)
-    (draw-rect ctx [50 50])))
 
 (defn key-handler
   [chan event]
@@ -52,5 +47,9 @@
 (rum/defc Root < rum/reactive []
   [:div "Player: " (get-in (rum/react app-state) [:player :coordinates])])
 
+;; Use requestAnimationFrame as callback?
+(add-watch app-state :ticker (fn [_ _ _ state]
+                               ;; clear rect first
+                               (draw-rect (first (get-in state [:player :coordinates])))))
 (rum/mount (Root)
            (. js/document (getElementById "app")))

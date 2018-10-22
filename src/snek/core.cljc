@@ -3,7 +3,7 @@
     [clojure.test :refer [is]]
     [snek.state :as s]))
 
-(defn movement-event?
+(defn direction-event?
   [evt]
   (contains? #{:up :down :left :right} evt))
 
@@ -28,6 +28,10 @@
                                                                          (dec (- (count (s/get-movements state)) index)))))
                                                 (s/get-coordinates state)))))
 
+(defn handle-direction
+  [state direction]
+  (s/update-direction state direction))
+
 (defn handle-movement
   {:test (fn []
            (is (= (handle-movement (s/create-default-state) :down)
@@ -36,8 +40,8 @@
                    :food   [[20 6]]})))}
   [state command]
   (-> (case command
-        :up (s/update-movements state [0 1])
-        :down (s/update-movements state [0 -1])
+        :up (s/update-movements state [0 -1])
+        :down (s/update-movements state [0 1])
         :left (s/update-movements state [-1 0])
         :right (s/update-movements state [1 0]))
       (move)))
@@ -50,5 +54,6 @@
                    :food   [[20 6]]})))}
   [state]
   (-> state
+      ()
       (s/update-movements (last (s/get-movements state)))
       (move)))
