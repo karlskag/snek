@@ -28,7 +28,7 @@
                height
                width)))
 
-(defn draw-circle
+(defn draw-food-circle
   [[x y]]
   (let [width (:width default-sizes)
         height (:height default-sizes)]
@@ -39,7 +39,7 @@
       (.fill))))
 
 (defn paint-background []
-  (set! (.-globalAlpha ctx) 0.6)
+  (set! (.-globalAlpha ctx) 0.65)
   (set! (.-fillStyle ctx) (:background colors))
   (.fillRect ctx 0 0 1000 1000)
   (set! (.-globalAlpha ctx) 1))
@@ -75,6 +75,6 @@
 (add-watch app-state :ticker (fn [_ _ _ state]
                                (paint-background)
                                (doseq [coordinate (s/get-coordinates state)] (draw-snake-rect coordinate))
-                               (doseq [food-coordinate (s/get-food state)] (draw-circle food-coordinate))))
+                               (doseq [food-coordinate (s/get-food state)] (draw-food-circle food-coordinate))))
 (rum/mount (Root)
            (. js/document (getElementById "app")))

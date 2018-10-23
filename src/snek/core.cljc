@@ -40,6 +40,10 @@
         body (drop 1 (s/get-coordinates state))]
     (contains? body head)))
 
+(defn eat-food
+  [state]
+  (s/remove-food state (first (s/get-coordinates state))))
+
 (defn move
   {:test (fn []
            (is (= (s/get-coordinates (move (s/create-default-state)))
@@ -55,6 +59,7 @@
   (if (should-grow? state)
     (let [tail (last (s/get-coordinates state))]
       (-> state
+          (eat-food)
           (s/update-coordinates (calculate-coordinates state))
           (grow-with tail)))
     (s/update-coordinates state (calculate-coordinates state))))
@@ -78,6 +83,12 @@
     :right (s/update-movements state [1 0]))
   )
 
+(defn maybe-add-food
+  [state]
+  (if (or (< (rand-int 1000) 20) (empty? (s/get-food state)))
+    (s/update-food state [(rand-int 100) (rand-int 50)])
+    state))
+
 (defn handle-tick
   {:test (fn []
            (is (= (handle-tick (s/create-default-state))
@@ -87,4 +98,5 @@
   [state]
   (-> state
       (handle-movement)
-      (move)))
+      (move)
+      (maybe-add-food)))

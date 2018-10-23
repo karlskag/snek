@@ -27,8 +27,8 @@
   {:test (fn []
            (is (= (get-coordinates (update-coordinates (create-default-state) [[0 1] [1 1]]))
                   [[0 1] [1 1]])))}
-  [state coordinates]
-  (assoc-in state [:player :coordinates] coordinates))
+  [state coordinate]
+  (assoc-in state [:player :coordinates] coordinate))
 
 (defn get-direction
   [state]
@@ -45,4 +45,12 @@
 (defn add-coordinate
   [state coordinate]
   (update-in state [:player :coordinates] conj coordinate))
+
+(defn remove-food
+  [state coordinate]
+  (update state :food disj coordinate))
+
+(defn update-food
+  [state coordinate]
+  (update state :food conj coordinate))
 
