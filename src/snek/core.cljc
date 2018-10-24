@@ -8,14 +8,30 @@
   (contains? #{:up :down :left :right} evt))
 
 (defn initialize-game
-  []
-  (s/create-default-state))
+  [_ sizes]
+  (s/create-default-state sizes))
 
 (defn calculate-coordinates
+  {:test (fn []
+           (is (= (calculate-coordinates {:sizes  {:play-area {:height 10 :width 20}
+                                                   :entities  {:height 1 :width 1}}
+                                          :player {:movements   [[1 0] [1 0] [0 -1]]
+                                                   :coordinates [[3 0] [2 0] [1 0]]}})
+                  [[3 9] [3 0] [2 0]])))}
   [state]
   (vec (map-indexed (fn [index coordinate]
-                      (map + coordinate (nth (s/get-movements state)
-                                             (dec (- (count (s/get-movements state)) index)))))
+                      (let [[new-x new-y] (map + coordinate (nth (s/get-movements state)
+                                                                 (dec (- (count (s/get-movements state)) index))))]
+                        (cond
+                          ;to the left of play area
+                          (< new-x 0) [(+ (s/get-transformed-play-area-width state) new-x) new-y]
+                          ;to the right of play area
+                          (> new-x (- (s/get-transformed-play-area-width state) 1)) [(mod new-x (s/get-transformed-play-area-width state)) new-y]
+                          ;above play area
+                          (< new-y 0) [new-x (+ (s/get-transformed-play-area-height state) new-y)]
+                          ;below play area
+                          (> new-y (- (s/get-transformed-play-area-height state) 1)) [new-x (mod new-y (s/get-transformed-play-area-height state))]
+                          :else [new-x new-y])))
                     (s/get-coordinates state))))
 
 (defn grow-with
@@ -27,18 +43,17 @@
 
 (defn should-grow?
   {:test (fn []
-           (is (= (should-grow? {:player {:coordinates [[1 1] [2 1]]}
-                                 :food   #{[1 1]}})
-                  true)))}
+           (is (should-grow? {:player {:coordinates [[1 1] [2 1]]}
+                              :food   #{[1 1]}})))}
   [state]
   (let [head (first (s/get-coordinates state))]
     (contains? (s/get-food state) head)))
 
-(defn should-crash?
+(defn crash?
   [state]
   (let [head (first (s/get-coordinates state))
         body (drop 1 (s/get-coordinates state))]
-    (contains? body head)))
+    (some (partial = head) body)))
 
 (defn eat-food
   [state]
@@ -85,8 +100,8 @@
 
 (defn maybe-add-food
   [state]
-  (if (or (< (rand-int 1000) 20) (empty? (s/get-food state)))
-    (s/update-food state [(rand-int 100) (rand-int 50)])
+  (if (or (< (rand-int 1000) 10) (empty? (s/get-food state)))
+    (s/update-food state [(rand-int (s/get-transformed-play-area-width state)) (rand-int (s/get-transformed-play-area-height state))])
     state))
 
 (defn handle-tick
@@ -96,7 +111,10 @@
                             :movements   [[1 0] [1 0] [1 0] [1 0]]}
                    :food   [[20 6]]})))}
   [state]
-  (-> state
-      (handle-movement)
-      (move)
-      (maybe-add-food)))
+  (if (crash? state)
+    state
+    (-> state
+        ; TODO: rename handle movement or put inside move fn
+        (handle-movement)
+        (move)
+        (maybe-add-food))))

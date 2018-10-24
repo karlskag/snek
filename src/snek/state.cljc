@@ -2,11 +2,19 @@
   (:require [clojure.test :refer [is]]))
 
 (defn create-default-state
-  []
+  ([]
+   ({:player {:direction   :right
+              :coordinates [[8 3] [7 3] [6 3]]
+              :movements   [[1 0] [1 0] [1 0]]}
+     :food   #{[5 6] [3 5]}
+     :sizes  {:play-area {:width 400 :height 200}
+              :entities {:width 10 :height 10}}}))
+  ([sizes]
   {:player {:direction   :right
             :coordinates [[8 3] [7 3] [6 3]]
             :movements   [[1 0] [1 0] [1 0]]}
-   :food   #{[20 6] [30 40]}})
+   :food   #{[5 6] [3 5]}                                   ;TODO: Randomly generate positions of snake and food given play-area sizes
+   :sizes sizes}))
 
 (defn get-movements
   [state]
@@ -53,4 +61,15 @@
 (defn update-food
   [state coordinate]
   (update state :food conj coordinate))
+
+(defn get-transformed-play-area-width
+  {:test (fn []
+           (is (= (get-transformed-play-area-width {:sizes {:play-area {:width 500}
+                                                            :entities {:width 10}}}) 50)))}
+  [state]
+  (/ (get-in state [:sizes :play-area :width]) (get-in state [:sizes :entities :width])))
+
+(defn get-transformed-play-area-height
+  [state]
+  (/ (get-in state [:sizes :play-area :height]) (get-in state [:sizes :entities :height])))
 
